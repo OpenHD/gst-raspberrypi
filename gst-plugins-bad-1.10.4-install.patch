@@ -1,0 +1,11 @@
+--- debian/gstreamer-plugins-bad.install.orig	2019-12-12 15:44:12.851584436 +0000
++++ debian/gstreamer-plugins-bad.install	2019-12-12 15:45:22.324000666 +0000
+@@ -71,6 +71,7 @@
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstopusparse.so
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpcapparse.so
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstpnm.so
++debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstqmlgl.so
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrawparse.so
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstremovesilence.so
+ debian/tmp/usr/lib/*/gstreamer-@GST_ABI@/libgstrfbsrc.so
+ 

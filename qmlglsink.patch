@@ -1,0 +1,17 @@
+--- debian/rules.orig	2019-12-01 14:54:28.000000000 +0000
++++ debian/rules	2019-12-01 14:54:38.000000000 +0000
+@@ -95,13 +95,6 @@
+ endif
+ 
+ 
+-# workaround for mesa headers being broken (#894076)
+-ifeq ($(DEB_HOST_ARCH),armel)
+-CONFIG_ARGS += --disable-qt
+-endif
+-ifeq ($(DEB_HOST_ARCH),armhf)
+-CONFIG_ARGS += --disable-qt
+-endif
+ 
+ ifeq ($(DEB_HOST_ARCH_OS),linux)
+ DEFAULT_AUDIOSINK = autoaudiosink
+

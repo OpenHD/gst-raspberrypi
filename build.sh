@@ -1,5 +1,5 @@
-GSTREAMER_VERSION=1.14.4
-QT_VERSION=5.12
+GSTREAMER_VERSION=1.10.4
+QT_VERSION=5.13.1
 
 rm *.xz 
 
@@ -22,32 +22,22 @@ function core() {
 
 
 function base() {
-    if [ ! -f gst-plugins-base1.0_${GSTREAMER_VERSION}-2.debian.tar.xz ]; then
-	wget http://archive.raspbian.org/raspbian/pool/main/g/gst-plugins-base1.0/gst-plugins-base1.0_${GSTREAMER_VERSION}-2.debian.tar.xz
+    if [ ! -f gst-plugins-base1.0_${GSTREAMER_VERSION}-1+deb9u1.debian.tar.xz ]; then
+	wget http://archive.raspbian.org/raspbian/pool/main/g/gst-plugins-base1.0/gst-plugins-base1.0_${GSTREAMER_VERSION}-1+deb9u1.debian.tar.xz
 	wget http://archive.raspbian.org/raspbian/pool/main/g/gst-plugins-base1.0/gst-plugins-base1.0_${GSTREAMER_VERSION}.orig.tar.xz
     fi
-
 
     rm -rf gst-plugins-base-${GSTREAMER_VERSION} || true
     tar xvf gst-plugins-base1.0_${GSTREAMER_VERSION}.orig.tar.xz
 
     cd gst-plugins-base-${GSTREAMER_VERSION} || exit 1
-    tar xvf ../gst-plugins-base1.0_${GSTREAMER_VERSION}-2.debian.tar.xz || exit 1
-    sed -i.bak 's/libgraphene-1.0-dev//g' debian/control || exit 1
-    patch -p0 -i ../gst-plugins-base-${GSTREAMER_VERSION}.patch || exit 1
-    patch -p0 -i ../gst-plugins-base-${GSTREAMER_VERSION}.patch2 || exit 1
-    patch -p0 -i ../gst-plugins-base-${GSTREAMER_VERSION}.patch3 || exit 1
+    tar xvf ../gst-plugins-base1.0_${GSTREAMER_VERSION}-1+deb9u1.debian.tar.xz || exit 1
 
-    if grep stretch /etc/apt/sources.list; then
-        patch -p0 -i ../gst-plugins-base-${GSTREAMER_VERSION}.patch4 || exit 1
-    fi
-
-    dpkg-source --commit . openhd.patch
     export DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info
     DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info \
 CFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
 CPPFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
-LDFLAGS='-lEGL -lGLESv2' DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
+DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
     cd ..
     dpkg -i *.deb
 }
@@ -63,21 +53,15 @@ function good() {
     rm -rf gst-plugins-good-${GSTREAMER_VERSION} || true
     tar xvf gst-plugins-good1.0_${GSTREAMER_VERSION}.orig.tar.xz
 
-
     cd gst-plugins-good-${GSTREAMER_VERSION} || exit 1
     tar xvf ../gst-plugins-good1.0_${GSTREAMER_VERSION}-1.debian.tar.xz || exit 1
-    patch -p0 -i ../gst-plugins-good-${GSTREAMER_VERSION}-rules.patch || exit 1
-    patch -p0 -i ../gst-plugins-good-${GSTREAMER_VERSION}-control.patch || exit 1
-    patch -p0 -i ../gst-plugins-good-${GSTREAMER_VERSION}-control.in.patch || exit 1
 
-    export PKG_CONFIG_PATH=/opt/Qt${QT_VERSION}/lib/pkgconfig
-    export PATH=/opt/Qt${QT_VERSION}/bin:${PATH}
     export DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info
     DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info \
 PKG_CONFIG_PATH=/opt/Qt${QT_VERSION}/lib/pkgconfig \
 CFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
 CPPFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
-LDFLAGS='-lEGL -lGLESv2' DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
+DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
     cd ..
     dpkg -i *.deb
 }
@@ -96,19 +80,19 @@ function bad() {
 
     cd gst-plugins-bad-${GSTREAMER_VERSION} || exit 1
     tar xvf ../gst-plugins-bad1.0_${GSTREAMER_VERSION}-1.debian.tar.xz
-    sed -i.bak 's/libnice-dev (>= 0.1.14)//g' debian/control
-    sed -i.bak 's/libsrtp2-dev (>= 2.1)//g' debian/control
-    sed -i.bak 's/DEB_CONFIGURE_EXTRA_FLAGS +=/DEB_CONFIGURE_EXTRA_FLAGS += --disable-srtp/g' debian/rules
+    patch -p0 -i ../gst-plugins-bad-${GSTREAMER_VERSION}-rules.patch || exit 1
+    patch -p0 -i ../gst-plugins-bad-${GSTREAMER_VERSION}-install.patch || exit 1
 
-    sed -i.bak 's/libgstsrtp.so/libgstx265.so/g'   debian/gstreamer-plugins-bad.install
-    sed -i.bak 's/libgstwebrtc.so/libgstx265.so/g' debian/gstreamer-plugins-bad.install
+    dpkg-source --commit . openhd.patch
+    
+    export PKG_CONFIG_PATH=/opt/Qt${QT_VERSION}/lib/pkgconfig
+    export PATH=/opt/Qt${QT_VERSION}/bin:${PATH}
 
-    sed -i.bak 's/libgstsrtp.so/libgstx265.so/g'   debian/gstreamer1.0-plugins-bad.install
-    sed -i.bak 's/libgstwebrtc.so/libgstx265.so/g' debian/gstreamer1.0-plugins-bad.install
-
+    export DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info
+    DEB_DH_SHLIBDEPS_ARGS_ALL=--dpkg-shlibdeps-params=--ignore-missing-info \
 CFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
 CPPFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
-LDFLAGS='-L/opt/vc/lib -lbcm_host' DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
+LDFLAGS='-L/opt/vc/lib -lEGL -lGLESv2 -lbcm_host' DEB_BUILD_OPTIONS='parallel=4' debuild -us -uc
     cd ..
     dpkg -i *.deb
 }
@@ -116,8 +100,8 @@ LDFLAGS='-L/opt/vc/lib -lbcm_host' DEB_BUILD_OPTIONS='parallel=4' debuild -us -u
 
 
 function omx() {
-    if [ ! -f gst-omx_${GSTREAMER_VERSION}-1.debian.tar.xz ]; then
-        wget http://archive.raspberrypi.org/debian/pool/main/g/gst-omx/gst-omx_${GSTREAMER_VERSION}-1+rpt1.debian.tar.xz
+    if [ ! -f gst-omx_${GSTREAMER_VERSION}-1+rtp3.debian.tar.xz ]; then
+        wget http://archive.raspberrypi.org/debian/pool/main/g/gst-omx/gst-omx_${GSTREAMER_VERSION}-1+rpt3.debian.tar.xz
         wget http://archive.raspberrypi.org/debian/pool/main/g/gst-omx/gst-omx_${GSTREAMER_VERSION}.orig.tar.xz
     fi
     rm -rf gst-omx-${GSTREAMER_VERSION} || true
@@ -126,7 +110,7 @@ function omx() {
 
 
     cd gst-omx-${GSTREAMER_VERSION} || exit 1
-    tar xvf ../gst-omx_${GSTREAMER_VERSION}-1+rpt1.debian.tar.xz
+    tar xvf ../gst-omx_${GSTREAMER_VERSION}-1+rpt3.debian.tar.xz
 
 CFLAGS='-DOMX_SKIP64BIT -Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
 CPPFLAGS='-Wno-redundant-decls -I/opt/vc/include -I/opt/vc/include/IL -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux' \
@@ -150,9 +134,9 @@ function cleanup() {
     rm gst-omx-${GSTREAMER_VERSION}.tar.xz || true
 }
 
-core
-base
-good
-bad
+#core
+#base
+#good
+#bad
 omx
-cleanup
+#cleanup
